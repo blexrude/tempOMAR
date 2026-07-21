@@ -1,0 +1,54 @@
+/* Door Jamb & Casing — styles layered on top of styles.css. */
+
+code {
+  background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: 6px; padding: 1px 5px; font-size: 12px;
+}
+
+/* Cut-list value emphasis */
+.cutlist td.val { font-variant-numeric: tabular-nums; font-weight: 600; }
+.cutlist .sub { color: var(--muted); font-weight: 400; font-size: 12px; }
+.piece-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: middle; margin-right: 6px; }
+
+/* Hinge table */
+.hinge-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 14px; }
+.hinge-table th { text-align: left; color: var(--muted); font-weight: 600; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.hinge-table td { padding: 8px; border-bottom: 1px solid #1e3529; font-variant-numeric: tabular-nums; }
+.hinge-table td.val { font-weight: 600; }
+
+/* Elevation diagrams */
+.elevations { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 620px) { .elevations { grid-template-columns: 1fr 1fr; } }
+.elevation { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.elevation-cap { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.elev-svg { width: 100%; height: auto; display: block; }
+
+/* SVG parts */
+.elev-svg .casing { fill: #24503b; stroke: #3a6b50; stroke-width: 1; }
+.elev-svg .jamb { fill: #2f5f47; stroke: #46765b; stroke-width: 1; }
+.elev-svg .door { fill: #13241c; stroke: #4f7d63; stroke-width: 1.5; }
+.elev-svg .hinge { fill: var(--accent); stroke: #0c2a1c; stroke-width: 0.75; }
+.elev-svg .floor { stroke: #6f8a7c; stroke-width: 1.5; }
+.elev-svg .dimline { stroke: var(--text); stroke-width: 1; }
+.elev-svg .dimext { stroke: var(--muted); stroke-width: 0.8; stroke-dasharray: 3 2; }
+.elev-svg .dimarrow { fill: var(--text); }
+.elev-svg .dimtext { fill: var(--text); font-size: 11px; font-weight: 600; font-family: inherit; }
+.elev-svg .facetext { fill: var(--muted); font-size: 10px; font-family: inherit; }
+
+.note-box { background: var(--card-2); border: 1px solid var(--line); color: var(--muted);
+  padding: 12px; border-radius: 10px; margin-bottom: 14px; font-size: 12px; }
+.note-box strong { color: var(--text); }
+
+@media print {
+  .app-link { display: none !important; }
+  .elev-svg .casing { fill: #e5e5e5; stroke: #999; }
+  .elev-svg .jamb { fill: #f0f0f0; stroke: #999; }
+  .elev-svg .door { fill: #fff; stroke: #333; }
+  .elev-svg .hinge { fill: #333; stroke: #000; }
+  .elev-svg .floor { stroke: #333; }
+  .elev-svg .dimline, .elev-svg .dimarrow, .elev-svg .dimtext { stroke: #000; fill: #000; }
+  .elev-svg .dimext { stroke: #666; }
+  .elev-svg .facetext { fill: #333; }
+  .elevation, .note-box { background: #fff; border-color: #999; break-inside: avoid; }
+  .hinge-table td, .hinge-table th { color: #000; border-color: #999; }
+}

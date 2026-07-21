@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#12241d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Door Jamb" />
+  <meta name="description" content="Enter a door's dimensions to get a jamb and casing cut list plus a hinge-placement layout." />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/door.css" />
+  <title>Door Jamb &amp; Casing</title>
+</head>
+<body>
+  <header class="app-bar">
+    <div class="app-bar-inner">
+      <span class="logo">🚪</span>
+      <div>
+        <h1>Door Jamb &amp; Casing</h1>
+        <p class="tagline">Cut list &amp; hinge layout from a door size</p>
+      </div>
+      <a class="app-link" href="index.html">Cabinet tool →</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Door & clearances -->
+    <details class="panel" open>
+      <summary>Door &amp; clearances</summary>
+      <div class="panel-body">
+        <p class="hint">Enter the <strong>door slab</strong> size (the leaf itself). Type decimals or
+          fractions — e.g. <code>30</code>, <code>1 3/8</code>, <code>3/16</code>.</p>
+        <div class="field-grid">
+          <label class="field">
+            <span class="field-label">Door width</span>
+            <input id="doorW" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span class="field-label">Door height</span>
+            <input id="doorH" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span class="field-label">Door thickness</span>
+            <input id="doorTh" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span class="field-label">Reveal / gap — sides &amp; top</span>
+            <input id="reveal" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span class="field-label">Bottom clearance (floor gap)</span>
+            <input id="bottom" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span class="field-label">Round to</span>
+            <select id="denom" class="field-input">
+              <option value="16">nearest 1/16″</option>
+              <option value="32">nearest 1/32″</option>
+              <option value="8">nearest 1/8″</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </details>
+
+    <!-- Jamb -->
+    <details class="panel" open>
+      <summary>Jamb</summary>
+      <div class="panel-body">
+        <div class="field-grid">
+          <label class="field">
+            <span class="field-label">Jamb stock thickness</span>
+            <input id="jambTh" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span class="field-label">Jamb width (wall depth)</span>
+            <input id="jambWidth" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span class="field-label">Head joint</span>
+            <select id="joinery" class="field-input">
+              <option value="butt">Head on top of legs (butt)</option>
+              <option value="dado">Head dadoed into legs</option>
+            </select>
+          </label>
+          <label class="field" id="dadoField" hidden>
+            <span class="field-label">Dado depth (each leg)</span>
+            <input id="dadoDepth" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+          </label>
+        </div>
+      </div>
+    </details>
+
+    <!-- Casing -->
+    <details class="panel" open>
+      <summary>Casing (trim)</summary>
+      <div class="panel-body">
+        <label class="checkbox-row">
+          <input id="includeCasing" type="checkbox" checked />
+          <span><strong>Include casing</strong> — 3-sided trim around the jamb</span>
+        </label>
+        <div id="casingSettings">
+          <div class="field-grid">
+            <label class="field">
+              <span class="field-label">Casing face width</span>
+              <input id="casingW" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+            </label>
+            <label class="field">
+              <span class="field-label">Casing reveal (setback)</span>
+              <input id="casingReveal" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+            </label>
+            <label class="field">
+              <span class="field-label">Corners</span>
+              <select id="casingCorner" class="field-input">
+                <option value="miter">Mitered (45°)</option>
+                <option value="butt">Butted / square</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Doorstop -->
+    <details class="panel">
+      <summary>Doorstop (optional)</summary>
+      <div class="panel-body">
+        <label class="checkbox-row">
+          <input id="includeStop" type="checkbox" />
+          <span><strong>Add doorstop molding</strong> — 3 pieces nailed inside the jamb</span>
+        </label>
+      </div>
+    </details>
+
+    <!-- Hinges -->
+    <details class="panel" open>
+      <summary>Hinges</summary>
+      <div class="panel-body">
+        <div class="field-grid">
+          <label class="field">
+            <span class="field-label">Number of hinges</span>
+            <select id="hingeCount" class="field-input">
+              <option>2</option>
+              <option selected>3</option>
+              <option>4</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">Hinge height (leaf)</span>
+            <input id="hingeLen" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span class="field-label">Top hinge: from door top</span>
+            <input id="topFromTop" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span class="field-label">Bottom hinge: from door bottom</span>
+            <input id="botFromBottom" class="field-input" type="text" inputmode="decimal" autocomplete="off" />
+          </label>
+        </div>
+        <p class="hint">Top/bottom distances are to the near <em>end</em> of the hinge leaf. Any middle
+          hinges are spaced evenly between them. Common: 7″ top, 11″ bottom.</p>
+      </div>
+    </details>
+
+    <div class="actions">
+      <button id="generate" class="btn primary">Generate cut list &amp; hinge layout</button>
+    </div>
+
+    <!-- Results -->
+    <section id="results" class="results" hidden>
+      <div class="section-head">
+        <h2>Results</h2>
+        <div class="result-actions">
+          <button id="exportCsv" class="btn small">CSV</button>
+          <button id="printBtn" class="btn small">Print / PDF</button>
+        </div>
+      </div>
+      <div id="results-body"></div>
+    </section>
+
+    <footer class="foot">
+      <p>Works in any browser. Add to your home screen to use it like an app.</p>
+      <p class="fine">Site-built jamb model. Verify every dimension against your door, flooring, and
+        joinery before cutting — measure twice, cut once.</p>
+    </footer>
+  </main>
+
+  <script src="js/door.js"></script>
+</body>
+</html>
