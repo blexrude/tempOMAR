@@ -143,6 +143,19 @@ select.field-input {
 .cutlist td { padding: 7px 8px; border-bottom: 1px solid #1e3529; }
 .tag-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: middle; }
 
+/* 3D cabinet drawings */
+.drawing-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.drawing-card { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.drawing-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px; margin-bottom: 6px; }
+.drawing-name { font-weight: 700; font-size: 14px; }
+.drawing-dims { font-size: 12px; color: var(--muted); }
+.cab3d { width: 100%; height: auto; display: block; max-height: 46vh; }
+.cab3d .dimline { stroke: var(--text); stroke-width: 1; }
+.cab3d .dimext { stroke: var(--muted); stroke-width: 0.8; stroke-dasharray: 3 2; }
+.cab3d .dimarrow { fill: var(--text); }
+.cab3d .dimtext { fill: var(--text); font-size: 15px; font-weight: 600; font-family: inherit; }
+@media (min-width: 620px) { .drawing-grid { grid-template-columns: repeat(2, 1fr); } }
+
 /* Diagrams */
 .diagrams { display: flex; flex-direction: column; gap: 14px; }
 .diagram { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
@@ -166,7 +179,11 @@ select.field-input {
   .result-actions, .section-head button { display: none !important; }
   main { max-width: none; padding: 0; }
   .results { display: block !important; }
-  .stat, .card, .diagram, .group { break-inside: avoid; }
+  .stat, .card, .diagram, .group, .drawing-card { break-inside: avoid; }
+  .cab3d .dimline, .cab3d .dimarrow, .cab3d .dimtext { stroke: #000; fill: #000; }
+  .cab3d .dimext { stroke: #666; }
+  .drawing-name, .drawing-dims { color: #000; }
+  .drawing-card { background: #fff; border-color: #999; }
   .stat-value { color: #000; }
   .summary { grid-template-columns: repeat(4, 1fr); }
   .stat, .diagram, .cutlist td, .cutlist th, .group-title { border-color: #999 !important; }
