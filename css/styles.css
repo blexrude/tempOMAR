@@ -1,0 +1,178 @@
+/* Cabinet Cut List — mobile-first styles. Dark, shop-friendly, high contrast. */
+:root {
+  --bg: #0e1a15;
+  --bg-2: #12241d;
+  --panel: #16302604;
+  --card: #17281f;
+  --card-2: #1d3328;
+  --line: #2a4a3a;
+  --text: #e7f0ea;
+  --muted: #93a89c;
+  --accent: #38b676;
+  --accent-2: #2c9560;
+  --danger: #e06b6b;
+  --warn: #d9a441;
+  --radius: 14px;
+  --shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* App bar */
+.app-bar {
+  position: sticky; top: 0; z-index: 20;
+  background: linear-gradient(180deg, #163326, #12241d);
+  border-bottom: 1px solid var(--line);
+  padding: calc(env(safe-area-inset-top) + 10px) 16px 10px;
+  box-shadow: var(--shadow);
+}
+.app-bar-inner { display: flex; align-items: center; gap: 12px; max-width: 760px; margin: 0 auto; }
+.logo {
+  font-size: 26px; width: 42px; height: 42px; flex: 0 0 42px;
+  display: grid; place-items: center;
+  background: var(--accent); color: #062015; border-radius: 12px;
+}
+.app-bar h1 { font-size: 18px; margin: 0; letter-spacing: 0.2px; }
+.tagline { margin: 0; font-size: 12px; color: var(--muted); }
+
+main { max-width: 760px; margin: 0 auto; padding: 14px 14px 40px; }
+
+/* Panels (collapsible) */
+.panel {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); margin-bottom: 14px; overflow: hidden;
+}
+.panel > summary {
+  cursor: pointer; padding: 14px 16px; font-weight: 600; list-style: none;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel > summary::-webkit-details-marker { display: none; }
+.panel > summary::after { content: "▾"; color: var(--muted); transition: transform .2s; }
+.panel[open] > summary::after { transform: rotate(180deg); }
+.panel-body { padding: 4px 16px 16px; }
+
+/* Fields */
+.field-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 12px;
+}
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field-label { font-size: 12px; color: var(--muted); }
+.field-input, .cab-name {
+  background: var(--bg-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 11px 12px; font-size: 16px; /* 16px avoids iOS zoom-on-focus */
+  width: 100%; -webkit-appearance: none; appearance: none;
+}
+.field-input:focus, .cab-name:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+select.field-input {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%2393a89c' d='M2 4l4 4 4-4z'/></svg>");
+  background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
+}
+
+.checkbox-row { display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; font-size: 14px; }
+.checkbox-row input { width: 20px; height: 20px; margin-top: 1px; accent-color: var(--accent); flex: 0 0 auto; }
+.hint { font-size: 12px; color: var(--muted); margin: 4px 0 10px; }
+
+/* Sections */
+.section-head { display: flex; align-items: center; justify-content: space-between; margin: 6px 2px 12px; }
+.section-head h2 { font-size: 16px; margin: 0; }
+.cabinets-section { margin-top: 4px; }
+
+/* Cabinet cards */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
+.card-head { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+.cab-name { font-weight: 600; font-size: 15px; }
+.empty { color: var(--muted); text-align: center; padding: 20px; }
+
+/* Buttons */
+.btn {
+  border: 1px solid var(--line); background: var(--card-2); color: var(--text);
+  border-radius: 12px; padding: 13px 18px; font-size: 15px; font-weight: 600;
+  cursor: pointer; -webkit-appearance: none;
+}
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--accent); border-color: var(--accent-2); color: #052015; }
+.btn.small { padding: 9px 14px; font-size: 13px; }
+.btn.ghost { background: transparent; }
+.btn.danger { color: var(--danger); }
+.icon-btn {
+  background: transparent; border: none; color: var(--muted);
+  font-size: 16px; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; flex: 0 0 auto;
+}
+.icon-btn.danger:hover { color: var(--danger); }
+.actions { margin: 8px 0 20px; }
+.actions .btn { width: 100%; padding: 16px; font-size: 16px; }
+
+/* ADA */
+.ada-panel { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 12px; }
+.ada-title { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; }
+.ada-check { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; }
+.ada-badge {
+  font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 6px; flex: 0 0 auto; margin-top: 1px;
+  min-width: 42px; text-align: center;
+}
+.ada-pass .ada-badge { background: #1c3b2a; color: #6fdca0; }
+.ada-warn .ada-badge { background: #3d2f18; color: var(--warn); }
+.ada-info .ada-badge { background: #1e2f3d; color: #7fb6d9; }
+.ada-label { font-size: 13px; font-weight: 600; }
+.ada-detail { font-size: 12px; color: var(--muted); }
+
+/* Results */
+.results { margin-top: 8px; }
+.result-actions, .project-tools { display: flex; gap: 8px; flex-wrap: wrap; }
+.project-tools { margin-top: 18px; }
+.summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+.stat { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 8px; text-align: center; }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 11px; color: var(--muted); }
+.warn-box { background: #3a2a16; border: 1px solid var(--warn); color: #f0d9a8; padding: 12px; border-radius: 10px; margin-bottom: 14px; font-size: 13px; }
+
+.group { margin-bottom: 26px; }
+.group-title { font-size: 15px; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+
+.cutlist { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 14px; }
+.cutlist th { text-align: left; color: var(--muted); font-weight: 600; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.cutlist td { padding: 7px 8px; border-bottom: 1px solid #1e3529; }
+.tag-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: middle; }
+
+/* Diagrams */
+.diagrams { display: flex; flex-direction: column; gap: 14px; }
+.diagram { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+.diagram-cap { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.sheet-svg { width: 100%; height: auto; display: block; }
+.sheet-bg { fill: #0b1712; stroke: #3a5a49; stroke-width: 1; }
+.part-label { font-size: 7px; fill: #f2f7f4; font-family: inherit; pointer-events: none; }
+
+.foot { margin-top: 26px; text-align: center; color: var(--muted); font-size: 12px; }
+.foot .fine { font-size: 11px; opacity: .8; }
+
+/* Wider screens */
+@media (min-width: 620px) {
+  .field-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Print — clean cut list + diagrams on paper */
+@media print {
+  body { background: #fff; color: #000; }
+  .app-bar, .panel, .cabinets-section, .actions, .project-tools, .foot,
+  .result-actions, .section-head button { display: none !important; }
+  main { max-width: none; padding: 0; }
+  .results { display: block !important; }
+  .stat, .card, .diagram, .group { break-inside: avoid; }
+  .stat-value { color: #000; }
+  .summary { grid-template-columns: repeat(4, 1fr); }
+  .stat, .diagram, .cutlist td, .cutlist th, .group-title { border-color: #999 !important; }
+  .diagram { background: #fff; }
+  .sheet-bg { fill: #f4f4f4; stroke: #333; }
+  .part-label { fill: #000; }
+  .cutlist td, .cutlist th { color: #000; }
+  .group-title, .stat-label, .diagram-cap { color: #000; }
+}

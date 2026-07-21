@@ -1,0 +1,17 @@
+{
+  "name": "Cabinet Cut List",
+  "short_name": "Cut List",
+  "description": "Enter cabinet and material dimensions to get an optimized cut list and sheet-nesting diagram, with optional ADA build specs.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1a15",
+  "theme_color": "#12241d",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
