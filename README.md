@@ -9,6 +9,25 @@ accessible-design targets and per-cabinet checks.
 It's a **Progressive Web App**: no install from a store, works offline, and can
 be added to your phone's home screen so it opens like a native app.
 
+## Also included: Door Jamb & Casing calculator
+
+Open [`door.html`](door.html) (linked from the header of the main app) for a
+companion tool. Enter a **door slab's** width, height and thickness, set the
+**reveal/gap** for the sides and top with a **separate bottom clearance**, and it
+produces:
+
+- a **cut list** for the side jambs, head jamb, 3-sided casing (mitered or
+  butted), and optional doorstop — sized to your reveal and head-joint method
+  (head butted on top of the legs, or dadoed in);
+- a **hinge-placement table** (top-of-leaf from the door top, bottom-of-leaf
+  from the door bottom, and center height off the floor) with any middle hinges
+  spaced evenly; and
+- **front and hinge-side elevation drawings** with the key dimensions called
+  out.
+
+All entries accept plain decimals or fractions (`30`, `1 3/8`, `3/16`), and
+results are shown to the nearest 1/16″, 1/32″, or 1/8″. Export CSV or print/PDF.
+
 ## Use it on your phone
 
 1. Host these files on any static web server (see below), or open them locally.
