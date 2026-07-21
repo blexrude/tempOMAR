@@ -315,7 +315,27 @@
       root.appendChild(warn);
     }
 
+    root.appendChild(drawingsSection());
     data.groups.forEach(function (g) { root.appendChild(groupSection(g)); });
+  }
+
+  // 3D customer-facing drawings, one per cabinet definition.
+  function drawingsSection() {
+    var sec = create('section', 'group drawings-section');
+    sec.appendChild(create('h3', 'group-title', 'Cabinet drawings'));
+    var grid = create('div', 'drawing-grid');
+    state.cabinets.forEach(function (c) {
+      var card = create('div', 'drawing-card');
+      var head = create('div', 'drawing-head');
+      head.appendChild(create('span', 'drawing-name', c.name + (c.qty > 1 ? '  ×' + c.qty : '')));
+      head.appendChild(create('span', 'drawing-dims',
+        fmt(c.width) + ' W × ' + fmt(c.height) + ' H × ' + fmt(c.depth) + ' D'));
+      card.appendChild(head);
+      card.appendChild(Iso.draw(c, { fmt: fmt, toeKick: state.ada.toeKick }));
+      grid.appendChild(card);
+    });
+    sec.appendChild(grid);
+    return sec;
   }
 
   function stat(label, value) {
