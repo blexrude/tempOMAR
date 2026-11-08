@@ -16,6 +16,19 @@
     // Defaults in clean US values (4x8 sheet, 3/4" ply, 1/8" kerf).
     sheet: { w: 96 * IN, h: 48 * IN, thickness: 0.75 * IN, kerf: 0.125 * IN, trim: 0.25 * IN, grain: false },
     ada: { enabled: false, toeKick: 4 * IN, counterThickness: 1.5 * IN, mounting: 54 * IN },
+    pricing: {
+      enabled: false,
+      currency: '$',
+      sheetPrice: 55,
+      banding: { enabled: true, pricePerUnit: 0.60, unitLabel: 'ft' },
+      hingePrice: 4.50, hingesPerDoor: 2,
+      pullPrice: 3.00,
+      shelfPinSet: 1.50,
+      laborRate: 45, hoursPerCabinet: 2,
+      contingencyPct: 10,
+      markupPct: 20,
+      taxPct: 0
+    },
     cabinets: []
   };
   var lastResult = null; // packing result cache for redraw/print
@@ -209,6 +222,7 @@
     unitSel.onchange = function () {
       state.unit = unitSel.value;
       syncSettingInputs();
+      updateBandUnitLabel();
       renderCabinets();
       scheduleSave();
     };
@@ -235,6 +249,64 @@
     bindDim('toeKick', function (v) { state.ada.toeKick = v; }, function () { return state.ada.toeKick; });
     bindDim('counterThk', function (v) { state.ada.counterThickness = v; }, function () { return state.ada.counterThickness; });
     bindDim('mounting', function (v) { state.ada.mounting = v; }, function () { return state.ada.mounting; });
+
+    bindEstimator();
+  }
+
+  // Plain numeric/text bindings for the estimator (prices are not lengths).
+  function bindEstimator() {
+    var p = state.pricing;
+    var estToggle = el('estToggle');
+    estToggle.checked = p.enabled;
+    estToggle.onchange = function () {
+      p.enabled = estToggle.checked;
+      el('estSettings').hidden = !p.enabled;
+      scheduleSave();
+    };
+    el('estSettings').hidden = !p.enabled;
+
+    bindText('currency', function (v) { p.currency = v || '$'; }, function () { return p.currency; });
+    bindNum('sheetPrice', function (v) { p.sheetPrice = v; }, function () { return p.sheetPrice; });
+    bindNum('bandingPrice', function (v) { p.banding.pricePerUnit = v; }, function () { return p.banding.pricePerUnit; });
+    bindNum('hingePrice', function (v) { p.hingePrice = v; }, function () { return p.hingePrice; });
+    bindNum('hingesPerDoor', function (v) { p.hingesPerDoor = v; }, function () { return p.hingesPerDoor; });
+    bindNum('pullPrice', function (v) { p.pullPrice = v; }, function () { return p.pullPrice; });
+    bindNum('shelfPinSet', function (v) { p.shelfPinSet = v; }, function () { return p.shelfPinSet; });
+    bindNum('laborRate', function (v) { p.laborRate = v; }, function () { return p.laborRate; });
+    bindNum('hoursPerCabinet', function (v) { p.hoursPerCabinet = v; }, function () { return p.hoursPerCabinet; });
+    bindNum('contingencyPct', function (v) { p.contingencyPct = v; }, function () { return p.contingencyPct; });
+    bindNum('markupPct', function (v) { p.markupPct = v; }, function () { return p.markupPct; });
+    bindNum('taxPct', function (v) { p.taxPct = v; }, function () { return p.taxPct; });
+
+    var be = el('bandingEnabled');
+    be.checked = p.banding.enabled;
+    be.onchange = function () { p.banding.enabled = be.checked; scheduleSave(); };
+    updateBandUnitLabel();
+  }
+
+  // Banding is priced per foot (inch mode) or per metre (mm mode).
+  function updateBandUnitLabel() {
+    var label = state.unit === 'mm' ? 'm' : 'ft';
+    state.pricing.banding.unitLabel = label;
+    var n = el('bandUnit'); if (n) n.textContent = label;
+  }
+  function mmPerBandUnit() { return state.unit === 'mm' ? 1000 : 304.8; }
+
+  function bindText(id, setter, getter) {
+    var input = el(id);
+    if (!input) return;
+    input.value = getter();
+    input.oninput = function () { setter(input.value); scheduleSave(); };
+  }
+  function bindNum(id, setter, getter) {
+    var input = el(id);
+    if (!input) return;
+    input.value = getter();
+    input.oninput = function () {
+      var n = parseFloat(input.value);
+      setter(isNaN(n) ? 0 : n);
+      scheduleSave();
+    };
   }
 
   function bindDim(id, setter, getter) {
@@ -300,6 +372,14 @@
     summary.appendChild(stat('Distinct parts', String(data.cut.items.length)));
     var totalPieces = data.cut.items.reduce(function (a, it) { return a + it.qty; }, 0);
     summary.appendChild(stat('Total pieces', String(totalPieces)));
+    if (state.pricing.enabled) {
+      var estForStat = buildEstimate(data);
+      if (estForStat) {
+        var s = stat('Est. total', money(estForStat.totals.grandTotal));
+        s.classList.add('stat-wide');
+        summary.appendChild(s);
+      }
+    }
     root.appendChild(summary);
 
     // Any unplaced (oversize) parts?
@@ -317,6 +397,96 @@
 
     root.appendChild(drawingsSection());
     data.groups.forEach(function (g) { root.appendChild(groupSection(g)); });
+
+    if (state.pricing.enabled) {
+      var est = buildEstimate(data);
+      if (est) root.appendChild(estimateSection(est));
+    }
+  }
+
+  // Assemble the estimator context from the generated data and run it.
+  function buildEstimate(data) {
+    var groups = data.groups.map(function (g) {
+      return {
+        thickness: g.thickness,
+        label: fmt(g.thickness),
+        sheetCount: g.result.sheets.length,
+        items: g.items
+      };
+    });
+    var cabinetCount = state.cabinets.reduce(function (a, c) { return a + (c.qty || 1); }, 0);
+    var totalSheets = groups.reduce(function (s, g) { return s + g.sheetCount; }, 0);
+    return Estimator.estimate({
+      sheets: totalSheets,
+      groups: groups,
+      cabinetCount: cabinetCount,
+      items: data.cut.items
+    }, state.pricing, mmPerBandUnit());
+  }
+
+  function money(v) {
+    var cur = state.pricing.currency || '$';
+    var n = (Math.round(v * 100) / 100).toFixed(2);
+    // thousands separators
+    var parts = n.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return cur + parts.join('.');
+  }
+
+  function estimateSection(est) {
+    var sec = create('section', 'group estimate-section');
+    sec.appendChild(create('h3', 'group-title', 'Cost estimate'));
+
+    // Line items grouped by category
+    var table = create('table', 'cutlist estimate-table');
+    var thead = create('thead');
+    var hr = create('tr');
+    ['Item', 'Qty', 'Unit', 'Amount'].forEach(function (h) { hr.appendChild(create('th', null, h)); });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    var tbody = create('tbody');
+    var lastGroup = null;
+    est.lines.forEach(function (ln) {
+      if (ln.group !== lastGroup) {
+        var gr = create('tr', 'est-group-row');
+        var gc = create('td', null, ln.group); gc.colSpan = 4;
+        gr.appendChild(gc); tbody.appendChild(gr);
+        lastGroup = ln.group;
+      }
+      var tr = create('tr');
+      tr.appendChild(create('td', 'est-item', ln.label));
+      tr.appendChild(create('td', null, ln.qtyLabel != null ? ln.qtyLabel : String(ln.qty)));
+      tr.appendChild(create('td', null, money(ln.unit)));
+      tr.appendChild(create('td', 'est-amt', money(ln.total)));
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    sec.appendChild(table);
+
+    // Totals breakdown
+    var t = est.totals;
+    var box = create('div', 'est-totals');
+    totalRow(box, 'Subtotal', money(t.subtotal));
+    if (t.contingency > 0) totalRow(box, 'Contingency (' + t.contingencyPct + '%)', money(t.contingency));
+    if (t.markup > 0) totalRow(box, 'Markup (' + t.markupPct + '%)', money(t.markup));
+    if (t.tax > 0) totalRow(box, 'Tax (' + t.taxPct + '%)', money(t.tax));
+    totalRow(box, 'Total', money(t.grandTotal), true);
+    if (state.cabinets.length && t.perCabinet !== t.grandTotal) {
+      totalRow(box, 'Per cabinet (avg)', money(t.perCabinet));
+    }
+    sec.appendChild(box);
+
+    var note = create('p', 'est-note',
+      'Estimate only. Hardware and labor are rough defaults — adjust prices in the Cost estimate panel. Confirm material and shop rates before quoting.');
+    sec.appendChild(note);
+    return sec;
+  }
+
+  function totalRow(box, label, value, strong) {
+    var row = create('div', 'est-total-row' + (strong ? ' est-grand' : ''));
+    row.appendChild(create('span', 'est-total-label', label));
+    row.appendChild(create('span', 'est-total-value', value));
+    box.appendChild(row);
   }
 
   // 3D customer-facing drawings, one per cabinet definition.

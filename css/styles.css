@@ -167,6 +167,21 @@ select.field-input {
 .foot { margin-top: 26px; text-align: center; color: var(--muted); font-size: 12px; }
 .foot .fine { font-size: 11px; opacity: .8; }
 
+/* Cost estimate */
+.stat-wide { grid-column: span 2; }
+.estimate-table .est-group-row td { color: var(--accent); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; padding-top: 12px; border-bottom: 1px solid var(--line); }
+.estimate-table .est-item { padding-left: 4px; }
+.estimate-table .est-amt { text-align: right; font-variant-numeric: tabular-nums; }
+.estimate-table th:last-child { text-align: right; }
+.est-totals { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
+.est-total-row { display: flex; justify-content: space-between; padding: 5px 2px; font-size: 14px; }
+.est-total-label { color: var(--muted); }
+.est-total-value { font-variant-numeric: tabular-nums; }
+.est-grand { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 10px; font-size: 20px; font-weight: 800; }
+.est-grand .est-total-label { color: var(--text); }
+.est-grand .est-total-value { color: var(--accent); }
+.est-note { font-size: 11px; color: var(--muted); margin-top: 10px; }
+
 /* Wider screens */
 @media (min-width: 620px) {
   .field-grid { grid-template-columns: repeat(3, 1fr); }
@@ -184,6 +199,9 @@ select.field-input {
   .cab3d .dimext { stroke: #666; }
   .drawing-name, .drawing-dims { color: #000; }
   .drawing-card { background: #fff; border-color: #999; }
+  .est-group-row td { color: #000 !important; }
+  .est-grand .est-total-value, .estimate-table .est-amt { color: #000 !important; }
+  .est-total-label, .est-total-value, .est-note { color: #000 !important; }
   .stat-value { color: #000; }
   .summary { grid-template-columns: repeat(4, 1fr); }
   .stat, .diagram, .cutlist td, .cutlist th, .group-title { border-color: #999 !important; }
