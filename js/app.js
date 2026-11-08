@@ -535,8 +535,15 @@
     thead.appendChild(hr);
     table.appendChild(thead);
     var tbody = create('tbody');
+    var materialsSubtotal = est.totals.subtotal - est.totals.labor;
+    var subtotalShown = false;
     var lastGroup = null;
     est.lines.forEach(function (ln) {
+      // Insert a "Materials subtotal" row just before the Labor section.
+      if (ln.group === 'Labor' && !subtotalShown) {
+        subtotalRow(tbody, 'Materials subtotal', money(materialsSubtotal));
+        subtotalShown = true;
+      }
       if (ln.group !== lastGroup) {
         var gr = create('tr', 'est-group-row');
         var gc = create('td', null, ln.group); gc.colSpan = 4;
@@ -550,13 +557,15 @@
       tr.appendChild(create('td', 'est-amt', money(ln.total)));
       tbody.appendChild(tr);
     });
+    // If there was no labor section, still show the materials subtotal at the end.
+    if (!subtotalShown) subtotalRow(tbody, 'Materials subtotal', money(materialsSubtotal));
     table.appendChild(tbody);
     sec.appendChild(table);
 
     // Totals breakdown
     var t = est.totals;
     var box = create('div', 'est-totals');
-    totalRow(box, 'Subtotal', money(t.subtotal));
+    totalRow(box, 'Subtotal (materials + labor)', money(t.subtotal));
     if (t.contingency > 0) totalRow(box, 'Contingency (' + t.contingencyPct + '%)', money(t.contingency));
     if (t.markup > 0) totalRow(box, 'Markup (' + t.markupPct + '%)', money(t.markup));
     if (t.tax > 0) totalRow(box, 'Tax (' + t.taxPct + '%)', money(t.tax));
@@ -577,6 +586,15 @@
     row.appendChild(create('span', 'est-total-label', label));
     row.appendChild(create('span', 'est-total-value', value));
     box.appendChild(row);
+  }
+
+  // A subtotal line inside the line-item table (label + amount).
+  function subtotalRow(tbody, label, value) {
+    var tr = create('tr', 'est-subtotal-row');
+    var lc = create('td', null, label); lc.colSpan = 3;
+    tr.appendChild(lc);
+    tr.appendChild(create('td', 'est-amt', value));
+    tbody.appendChild(tr);
   }
 
   // 3D customer-facing drawings, one per cabinet definition.

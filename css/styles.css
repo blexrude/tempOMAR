@@ -173,6 +173,8 @@ select.field-input {
 .estimate-table .est-item { padding-left: 4px; }
 .estimate-table .est-amt { text-align: right; font-variant-numeric: tabular-nums; }
 .estimate-table th:last-child { text-align: right; }
+.estimate-table .est-subtotal-row td { border-top: 2px solid var(--line); border-bottom: 2px solid var(--line); font-weight: 700; padding-top: 9px; padding-bottom: 9px; }
+.estimate-table .est-subtotal-row .est-amt { color: var(--accent); }
 .est-totals { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
 .est-total-row { display: flex; justify-content: space-between; padding: 5px 2px; font-size: 14px; }
 .est-total-label { color: var(--muted); }
@@ -200,6 +202,7 @@ select.field-input {
   .drawing-name, .drawing-dims { color: #000; }
   .drawing-card { background: #fff; border-color: #999; }
   .est-group-row td { color: #000 !important; }
+  .est-subtotal-row td, .est-subtotal-row .est-amt { color: #000 !important; border-color: #666 !important; }
   .est-grand .est-total-value, .estimate-table .est-amt { color: #000 !important; }
   .est-total-label, .est-total-value, .est-note { color: #000 !important; }
   .stat-value { color: #000; }
