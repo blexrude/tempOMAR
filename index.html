@@ -95,6 +95,42 @@
       </div>
     </details>
 
+    <!-- Face frame -->
+    <details class="panel">
+      <summary>Face frame &amp; lumber</summary>
+      <div class="panel-body">
+        <p class="hint">Set a cabinet's <strong>Construction</strong> to “Face frame” on its card to add a
+          solid-lumber face frame. These settings size the frame and price the lumber.</p>
+        <div class="field-grid">
+          <label class="field">
+            <span class="field-label">Stile width (<span class="unit-suffix">in</span>)</span>
+            <input id="ffStile" class="field-input" type="number" inputmode="decimal" step="any" />
+          </label>
+          <label class="field">
+            <span class="field-label">Rail width (<span class="unit-suffix">in</span>)</span>
+            <input id="ffRail" class="field-input" type="number" inputmode="decimal" step="any" />
+          </label>
+          <label class="field">
+            <span class="field-label">Face frame lumber cost (per <span id="ffUnit">ft</span>)</span>
+            <input id="ffCost" class="field-input" type="number" inputmode="decimal" step="any" />
+          </label>
+          <label class="field">
+            <span class="field-label">Solid front board width (<span class="unit-suffix">in</span>)</span>
+            <input id="ffBoard" class="field-input" type="number" inputmode="decimal" step="any" />
+          </label>
+        </div>
+        <label class="checkbox-row">
+          <input id="ffCenter" type="checkbox" />
+          <span>Add a center stile to 2-door face frames</span>
+        </label>
+        <label class="checkbox-row">
+          <input id="ffSolid" type="checkbox" />
+          <span><strong>Use the same lumber for door panels &amp; drawer fronts</strong> — build
+            fronts from solid stock instead of sheet goods</span>
+        </label>
+      </div>
+    </details>
+
     <!-- Estimator -->
     <details class="panel">
       <summary>Cost estimate</summary>
@@ -130,6 +166,10 @@
             <label class="field">
               <span class="field-label">Pull / handle (each)</span>
               <input id="pullPrice" class="field-input" type="number" inputmode="decimal" step="any" />
+            </label>
+            <label class="field">
+              <span class="field-label">Drawer slide (per pair)</span>
+              <input id="drawerSlidePrice" class="field-input" type="number" inputmode="decimal" step="any" />
             </label>
             <label class="field">
               <span class="field-label">Shelf pin set</span>

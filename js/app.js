@@ -16,6 +16,10 @@
     // Defaults in clean US values (4x8 sheet, 3/4" ply, 1/8" kerf).
     sheet: { w: 96 * IN, h: 48 * IN, thickness: 0.75 * IN, kerf: 0.125 * IN, trim: 0.25 * IN, grain: false },
     ada: { enabled: false, toeKick: 4 * IN, counterThickness: 1.5 * IN, mounting: 54 * IN },
+    faceFrame: {
+      stileWidth: 1.5 * IN, railWidth: 1.5 * IN, centerStile: false,
+      solidFronts: false, boardWidth: 5.5 * IN, costPerFoot: 6.00
+    },
     pricing: {
       enabled: false,
       currency: '$',
@@ -24,6 +28,7 @@
       hingePrice: 4.50, hingesPerDoor: 2,
       pullPrice: 3.00,
       shelfPinSet: 1.50,
+      drawerSlidePrice: 12.00,
       laborRate: 45, hoursPerCabinet: 2,
       contingencyPct: 10,
       markupPct: 20,
@@ -69,12 +74,14 @@
       name: 'Cabinet ' + (state.cabinets.length + 1),
       qty: 1,
       type: 'base',
+      construction: 'frameless',
       width: 24 * IN, height: 30 * IN, depth: 24 * IN,
       thickness: state.sheet.thickness,
       shelves: 1,
       back: 'full', backThickness: 0.25 * IN,
       topStyle: 'stretchers', stretcherWidth: 4 * IN,
       doors: 2,
+      drawers: 0,
       adaKneeSpace: false
     };
   }
@@ -110,6 +117,8 @@
     var grid = create('div', 'field-grid');
     grid.appendChild(selectField('Type', c, 'type',
       [['base', 'Base'], ['wall', 'Wall'], ['tall', 'Tall / pantry']], true));
+    grid.appendChild(selectField('Construction', c, 'construction',
+      [['frameless', 'Frameless'], ['faceframe', 'Face frame']], true));
     grid.appendChild(numField('Qty', c, 'qty', { raw: true, min: 1, step: 1 }));
     grid.appendChild(dimField('Width', c, 'width'));
     grid.appendChild(dimField('Height', c, 'height'));
@@ -118,6 +127,7 @@
     grid.appendChild(numField('Shelves', c, 'shelves', { raw: true, min: 0, step: 1 }));
     grid.appendChild(selectField('Doors', c, 'doors',
       [[0, 'None'], [1, '1 door'], [2, '2 doors']], true, true));
+    grid.appendChild(numField('Drawer fronts', c, 'drawers', { raw: true, min: 0, step: 1 }));
     grid.appendChild(selectField('Back', c, 'back',
       [['full', 'Full overlay'], ['inset', 'Inset (rabbet)'], ['none', 'None']], true));
     grid.appendChild(dimField('Back thickness', c, 'backThickness'));
@@ -126,6 +136,10 @@
         [['stretchers', 'Stretchers'], ['panel', 'Full panel']], true));
     }
     card.appendChild(grid);
+    if (c.drawers > 0 && c.doors > 0) {
+      card.appendChild(create('p', 'hint',
+        'Note: drawer fronts take precedence — doors are ignored when drawer fronts > 0.'));
+    }
 
     if (state.ada.enabled) {
       var adaRow = create('label', 'checkbox-row');
@@ -251,6 +265,23 @@
     bindDim('mounting', function (v) { state.ada.mounting = v; }, function () { return state.ada.mounting; });
 
     bindEstimator();
+    bindFaceFrame();
+  }
+
+  // Face frame & solid-lumber settings.
+  function bindFaceFrame() {
+    var f = state.faceFrame;
+    bindDim('ffStile', function (v) { f.stileWidth = v; }, function () { return f.stileWidth; });
+    bindDim('ffRail', function (v) { f.railWidth = v; }, function () { return f.railWidth; });
+    bindDim('ffBoard', function (v) { f.boardWidth = v; }, function () { return f.boardWidth; });
+    bindNum('ffCost', function (v) { f.costPerFoot = v; }, function () { return f.costPerFoot; });
+    var c = el('ffCenter');
+    c.checked = f.centerStile;
+    c.onchange = function () { f.centerStile = c.checked; scheduleSave(); };
+    var s = el('ffSolid');
+    s.checked = f.solidFronts;
+    s.onchange = function () { f.solidFronts = s.checked; scheduleSave(); };
+    updateBandUnitLabel();
   }
 
   // Plain numeric/text bindings for the estimator (prices are not lengths).
@@ -271,6 +302,7 @@
     bindNum('hingePrice', function (v) { p.hingePrice = v; }, function () { return p.hingePrice; });
     bindNum('hingesPerDoor', function (v) { p.hingesPerDoor = v; }, function () { return p.hingesPerDoor; });
     bindNum('pullPrice', function (v) { p.pullPrice = v; }, function () { return p.pullPrice; });
+    bindNum('drawerSlidePrice', function (v) { p.drawerSlidePrice = v; }, function () { return p.drawerSlidePrice; });
     bindNum('shelfPinSet', function (v) { p.shelfPinSet = v; }, function () { return p.shelfPinSet; });
     bindNum('laborRate', function (v) { p.laborRate = v; }, function () { return p.laborRate; });
     bindNum('hoursPerCabinet', function (v) { p.hoursPerCabinet = v; }, function () { return p.hoursPerCabinet; });
@@ -284,11 +316,12 @@
     updateBandUnitLabel();
   }
 
-  // Banding is priced per foot (inch mode) or per metre (mm mode).
+  // Banding and face-frame lumber are priced per foot (inch) or per metre (mm).
   function updateBandUnitLabel() {
     var label = state.unit === 'mm' ? 'm' : 'ft';
     state.pricing.banding.unitLabel = label;
     var n = el('bandUnit'); if (n) n.textContent = label;
+    var ff = el('ffUnit'); if (ff) ff.textContent = label;
   }
   function mmPerBandUnit() { return state.unit === 'mm' ? 1000 : 304.8; }
 
@@ -321,7 +354,8 @@
   }
 
   function syncSettingInputs() {
-    ['sheetW', 'sheetH', 'sheetThk', 'kerf', 'trim', 'toeKick', 'counterThk', 'mounting']
+    ['sheetW', 'sheetH', 'sheetThk', 'kerf', 'trim', 'toeKick', 'counterThk', 'mounting',
+      'ffStile', 'ffRail', 'ffBoard']
       .forEach(function (id) { var n = el(id); if (n && n._sync) n._sync(); });
     document.querySelectorAll('.unit-suffix').forEach(function (s) {
       s.textContent = unitLabel();
@@ -334,7 +368,14 @@
       alert('Add at least one cabinet first.');
       return;
     }
-    var cut = Cabinet.buildCutList(state.cabinets);
+    var cut = Cabinet.buildCutList(state.cabinets, {
+      faceFrame: {
+        stileWidth: state.faceFrame.stileWidth,
+        railWidth: state.faceFrame.railWidth,
+        centerStile: state.faceFrame.centerStile
+      },
+      solidFronts: state.faceFrame.solidFronts
+    });
     var groups = [];
     Object.keys(cut.byThickness).sort(function (a, b) { return b - a; })
       .forEach(function (thk) {
@@ -357,7 +398,8 @@
 
   var TAG_COLORS = {
     side: '#4c7fb8', bottom: '#5aa17a', top: '#7a5aa1', back: '#b8794c',
-    shelf: '#4ca9b8', door: '#b84c7f', default: '#888'
+    shelf: '#4ca9b8', door: '#b84c7f', drawerfront: '#c76a3f',
+    'ff-stile': '#b89a4c', 'ff-rail': '#9a8544', default: '#888'
   };
 
   function renderResults(data) {
@@ -397,11 +439,55 @@
 
     root.appendChild(drawingsSection());
     data.groups.forEach(function (g) { root.appendChild(groupSection(g)); });
+    if (data.cut.lumber && data.cut.lumber.length) {
+      root.appendChild(lumberSection(data.cut.lumber));
+    }
 
     if (state.pricing.enabled) {
       var est = buildEstimate(data);
       if (est) root.appendChild(estimateSection(est));
     }
+  }
+
+  // Face-frame members and solid fronts: solid lumber, not nested on sheets.
+  function lumberSection(lumber) {
+    var sec = create('section', 'group');
+    // Total linear/board feet (frame members by length; panels by area/board width).
+    var mmLinear = 0;
+    lumber.forEach(function (it) {
+      mmLinear += it.linear
+        ? it.w * it.qty
+        : (it.w * it.h / state.faceFrame.boardWidth) * it.qty;
+    });
+    var ul = state.pricing.banding.unitLabel || (state.unit === 'mm' ? 'm' : 'ft');
+    var feet = mmLinear / mmPerBandUnit();
+    sec.appendChild(create('h3', 'group-title',
+      'Face frame & solid lumber — ' + (Math.round(feet * 10) / 10) + ' ' + ul + ' total'));
+
+    var table = create('table', 'cutlist');
+    var thead = create('thead'); var hr = create('tr');
+    ['Part', 'Cabinet', 'Length', 'Width', 'Qty'].forEach(function (h) { hr.appendChild(create('th', null, h)); });
+    thead.appendChild(hr); table.appendChild(thead);
+    var tbody = create('tbody');
+    lumber.slice().sort(sortItems).forEach(function (it) {
+      var tr = create('tr');
+      var dot = create('span', 'tag-dot');
+      dot.style.background = TAG_COLORS[it.tag] || TAG_COLORS.default;
+      var nameCell = create('td');
+      nameCell.appendChild(dot);
+      nameCell.appendChild(document.createTextNode(' ' + it.label));
+      tr.appendChild(nameCell);
+      tr.appendChild(create('td', null, it.cabinet));
+      // For solid-panel fronts "Length" is the longer dim; width the shorter.
+      var isPanel = !it.linear;
+      tr.appendChild(create('td', null, fmt(isPanel ? Math.max(it.w, it.h) : it.w)));
+      tr.appendChild(create('td', null, fmt(isPanel ? Math.min(it.w, it.h) : it.h)));
+      tr.appendChild(create('td', null, String(it.qty)));
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    sec.appendChild(table);
+    return sec;
   }
 
   // Assemble the estimator context from the generated data and run it.
@@ -416,12 +502,16 @@
     });
     var cabinetCount = state.cabinets.reduce(function (a, c) { return a + (c.qty || 1); }, 0);
     var totalSheets = groups.reduce(function (s, g) { return s + g.sheetCount; }, 0);
+    var pricing = Object.assign({}, state.pricing, {
+      faceFrameCostPerFoot: state.faceFrame.costPerFoot
+    });
     return Estimator.estimate({
       sheets: totalSheets,
       groups: groups,
       cabinetCount: cabinetCount,
-      items: data.cut.items
-    }, state.pricing, mmPerBandUnit());
+      items: data.cut.items,
+      lumber: data.cut.lumber || []
+    }, pricing, { mmPerLinear: mmPerBandUnit(), boardWidthMM: state.faceFrame.boardWidth });
   }
 
   function money(v) {
@@ -501,7 +591,14 @@
       head.appendChild(create('span', 'drawing-dims',
         fmt(c.width) + ' W × ' + fmt(c.height) + ' H × ' + fmt(c.depth) + ' D'));
       card.appendChild(head);
-      card.appendChild(Iso.draw(c, { fmt: fmt, toeKick: state.ada.toeKick }));
+      card.appendChild(Iso.draw(c, {
+        fmt: fmt, toeKick: state.ada.toeKick,
+        ff: {
+          stileWidth: state.faceFrame.stileWidth,
+          railWidth: state.faceFrame.railWidth,
+          centerStile: state.faceFrame.centerStile
+        }
+      }));
       grid.appendChild(card);
     });
     sec.appendChild(grid);

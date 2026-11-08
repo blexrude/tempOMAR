@@ -34,27 +34,42 @@ be added to your phone's home screen so it opens like a native app.
 ## What it does
 
 - **Cabinet entry** — add any number of cabinets. For each: type
-  (base / wall / tall), width × height × depth, panel thickness, quantity,
-  number of shelves, door count, and back style (full overlay / inset / none).
+  (base / wall / tall), **construction (frameless or face frame)**, width ×
+  height × depth, panel thickness, quantity, number of shelves, door count,
+  **drawer-front count**, and back style (full overlay / inset / none).
 - **Material & sheet** — sheet width/height/thickness, saw **kerf**, edge
   **trim**, inch or millimetre units, and a "grain matters" toggle that keeps
   panels from being rotated during nesting.
+- **Face frame & lumber (optional)** — set a cabinet to *face frame* and the
+  app adds solid-lumber stiles and rails (with an optional center stile and mid
+  rails for drawer stacks), tallied as **linear/board feet** and priced at a
+  **cost per linear foot**. A toggle also lets you build **door panels and
+  drawer fronts from the same solid lumber** instead of sheet goods.
 - **Cut list** — every part with finished width, height, quantity, material
-  thickness, and grain constraint, grouped by material thickness.
+  thickness, and grain constraint, grouped by material thickness. Solid lumber
+  (face frame + solid fronts) is listed separately with total linear footage.
 - **Nesting diagram** — a scaled layout of each sheet showing where every part
   lands, color-coded by part type, with a **sheet count and waste percentage**.
   The packer accounts for kerf and edge trim.
+- **3D drawing** — a labeled isometric view of each cabinet (doors, drawer
+  fronts, face frame, toe kick) with width/height/depth callouts for customer
+  presentations; included in the print/PDF.
 - **ADA mode (optional)** — enable it to get accessible-design targets and live
   checks per cabinet: finished counter height (≤ 34″), knee-clearance width /
   height / depth for an open knee space (forward approach), and wall-cabinet
   reach height. Turn it off and the app behaves like a standard cut-list tool.
-- **Export & print** — CSV cut list, print/PDF (clean layout of the list and
-  diagrams), and JSON project export/import. Your work auto-saves in the
-  browser between visits.
+- **Cost estimate (optional)** — turns the cut list into an itemized customer
+  quote: sheet materials, face-frame/solid lumber (per linear foot), edge
+  banding, hardware (hinges, drawer slides, pulls, shelf pins), and labor, with
+  contingency, markup, and tax rolled up to a total and a per-cabinet average.
+- **Export & print** — CSV cut list, print/PDF (clean layout of the list,
+  drawings, and quote), and JSON project export/import. Your work auto-saves in
+  the browser between visits.
 
 ## How the cut list is modeled
 
-Frameless ("Euro") plywood carcass:
+Frameless ("Euro") plywood carcass (a solid-lumber face frame is added on the
+front when a cabinet's construction is set to *face frame*):
 
 | Part | Size |
 | --- | --- |
@@ -64,6 +79,12 @@ Frameless ("Euro") plywood carcass:
 | Back | full overlay (W × H) or inset in a rabbet |
 | Shelves | (width − 2·thickness − clearance) × (depth − setback) |
 | Doors | overlay panels sized to the opening with a reveal gap |
+| Drawer fronts | opening width × (height ÷ count), stacked |
+| Face frame | solid stiles (full height) + top/bottom rails; optional center stile and mid rails |
+
+Solid door/drawer fronts (when you opt to use face-frame lumber for them) are
+estimated as board length = panel area ÷ board width, priced at the same cost
+per linear foot as the face frame.
 
 Constants (shelf setback, door reveal, dado depth) live at the top of
 `js/cabinet.js` if you want to tune them to your shop's standards.
@@ -74,8 +95,10 @@ Constants (shelf setback, door reveal, dado depth) live at the top of
 index.html              App shell / UI
 css/styles.css          Mobile-first styling (+ print styles)
 js/packer.js            Guillotine bin-packing / sheet nesting
-js/cabinet.js           Cabinet → parts list generation
+js/cabinet.js           Cabinet → parts list generation (frameless + face frame)
 js/ada.js               Optional ADA / ICC A117.1 checks
+js/iso.js               3D cabinet drawing with dimension callouts
+js/estimator.js         Optional cost estimator / customer quote
 js/app.js               UI, state, unit handling, SVG rendering, export
 manifest.webmanifest    PWA manifest (installable)
 sw.js                   Service worker (offline cache)
