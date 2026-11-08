@@ -1,6 +1,6 @@
 /* sw.js — offline cache for the Cabinet Cut List PWA.
  * Bump CACHE when any cached asset changes so clients pick up new files. */
-var CACHE = 'cutlist-v3';
+var CACHE = 'cutlist-v4';
 var ASSETS = [
   './',
   './index.html',

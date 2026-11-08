@@ -23,7 +23,8 @@
   var C = {
     front: '#d8b487', top: '#e3c79c', side: '#c39a63', stroke: '#6b5334',
     door: '#cfa877', doorEdge: '#7a5f3a', handle: '#2c2018',
-    interior: '#3a2c1c', shelf: '#8a6a44', toe: '#4a3826'
+    interior: '#3a2c1c', shelf: '#8a6a44', toe: '#4a3826',
+    frame: '#c7a85f', frameEdge: '#6b5226'
   };
 
   function el(tag, attrs) {
@@ -68,8 +69,9 @@
     face(svg, [P(W, 0, 0), P(W, H, 0), P(W, H, D), P(W, 0, D)], C.side);     // right side
     face(svg, [P(0, 0, 0), P(W, 0, 0), P(W, H, 0), P(0, H, 0)], C.front);    // front
 
-    // --- Front detailing: doors / shelves, then toe kick ---
-    drawFront(svg, c, P, W, H, toe);
+    // --- Front detailing: doors / drawers / shelves + face frame, then toe ---
+    var ff = opts.ff || { stileWidth: 38, railWidth: 38, centerStile: false };
+    drawFront(svg, c, P, W, H, toe, ff);
     if (hasToe && toe > 0) drawToe(svg, P, W, toe);
 
     // --- Dimension callouts ---
@@ -90,24 +92,72 @@
     }));
   }
 
-  function drawFront(svg, c, P, W, H, toe) {
-    var reveal = Math.min(W, H) * 0.02; // gap around doors
-    var yBot = toe;                     // doors/opening start above toe kick
-    if (c.doors === 1) {
-      doorPanel(svg, P, reveal, yBot + reveal, W - reveal, H - reveal, 'right');
+  function drawFront(svg, c, P, W, H, toe, ff) {
+    var isFF = c.construction === 'faceframe';
+    var reveal = Math.min(W, H) * 0.02;
+    var sW = isFF ? ff.stileWidth : 0;
+    var rW = isFF ? ff.railWidth : 0;
+
+    // The front opening the doors/drawers sit in.
+    var x0 = isFF ? sW : reveal;
+    var x1 = isFF ? W - sW : W - reveal;
+    var y0 = toe + (isFF ? rW : reveal);
+    var y1 = isFF ? H - rW : H - reveal;
+
+    var drawers = c.drawers || 0;
+    if (drawers > 0) {
+      for (var d = 0; d < drawers; d++) {
+        var dy0 = y0 + (y1 - y0) * (d / drawers) + reveal * 0.5;
+        var dy1 = y0 + (y1 - y0) * ((d + 1) / drawers) - reveal * 0.5;
+        drawerFront(svg, P, x0, dy0, x1, dy1);
+      }
+    } else if (c.doors === 1) {
+      doorPanel(svg, P, x0, y0, x1, y1, 'right');
     } else if (c.doors === 2) {
-      var mid = W / 2;
-      doorPanel(svg, P, reveal, yBot + reveal, mid - reveal / 2, H - reveal, 'right');
-      doorPanel(svg, P, mid + reveal / 2, yBot + reveal, W - reveal, H - reveal, 'left');
+      var mid = (x0 + x1) / 2;
+      var gap = isFF && ff.centerStile ? sW / 2 : reveal / 2;
+      doorPanel(svg, P, x0, y0, mid - gap, y1, 'right');
+      doorPanel(svg, P, mid + gap, y0, x1, y1, 'left');
     } else {
-      // Open front: show interior + shelves.
-      quadFront(svg, P, reveal, yBot + reveal, W - reveal, H - reveal, C.interior, C.doorEdge);
+      quadFront(svg, P, x0, y0, x1, y1, C.interior, C.doorEdge);
       var n = c.shelves || 0;
       for (var i = 1; i <= n; i++) {
-        var sy = yBot + (H - yBot) * (i / (n + 1));
-        line(svg, P(reveal * 1.5, sy, 0), P(W - reveal * 1.5, sy, 0), C.shelf, 2.5);
+        var sy = y0 + (y1 - y0) * (i / (n + 1));
+        line(svg, P(x0 + reveal, sy, 0), P(x1 - reveal, sy, 0), C.shelf, 2.5);
       }
     }
+
+    // Draw the solid-lumber face frame OVER the carcass front edges.
+    if (isFF) drawFaceFrame(svg, c, P, W, H, toe, ff, drawers);
+  }
+
+  // Face frame: stiles (verticals) + rails (horizontals) in lumber tone.
+  function drawFaceFrame(svg, c, P, W, H, toe, ff, drawers) {
+    var sW = ff.stileWidth, rW = ff.railWidth;
+    quadFront(svg, P, 0, toe, sW, H, C.frame, C.frameEdge);          // left stile
+    quadFront(svg, P, W - sW, toe, W, H, C.frame, C.frameEdge);      // right stile
+    quadFront(svg, P, sW, H - rW, W - sW, H, C.frame, C.frameEdge);  // top rail
+    quadFront(svg, P, sW, toe, W - sW, toe + rW, C.frame, C.frameEdge); // bottom rail
+    // Mid rails between stacked drawers
+    if (drawers > 1) {
+      var y0 = toe + rW, y1 = H - rW;
+      for (var m = 1; m < drawers; m++) {
+        var my = y0 + (y1 - y0) * (m / drawers);
+        quadFront(svg, P, sW, my - rW / 2, W - sW, my + rW / 2, C.frame, C.frameEdge);
+      }
+    }
+    // Center stile for a 2-door face frame
+    if (ff.centerStile && drawers === 0 && c.doors === 2) {
+      quadFront(svg, P, W / 2 - sW / 2, toe + rW, W / 2 + sW / 2, H - rW, C.frame, C.frameEdge);
+    }
+  }
+
+  // A drawer front: panel with a horizontal handle near the top.
+  function drawerFront(svg, P, x0, y0, x1, y1) {
+    quadFront(svg, P, x0, y0, x1, y1, C.door, C.doorEdge);
+    var cx = (x0 + x1) / 2, span = (x1 - x0) * 0.22;
+    var hy = y0 + (y1 - y0) * 0.28;
+    line(svg, P(cx - span, hy, 0), P(cx + span, hy, 0), C.handle, 3.4);
   }
 
   // A door: inset panel with a bevel line and a handle on the given side.
