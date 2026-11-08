@@ -95,6 +95,75 @@
       </div>
     </details>
 
+    <!-- Estimator -->
+    <details class="panel">
+      <summary>Cost estimate</summary>
+      <div class="panel-body">
+        <label class="checkbox-row">
+          <input id="estToggle" type="checkbox" />
+          <span><strong>Enable cost estimate</strong> — build a customer quote from the cut list</span>
+        </label>
+        <div id="estSettings" hidden>
+          <p class="hint">Prices feed an itemized quote (materials, edge banding, hardware,
+            labor) with contingency, markup, and tax. All editable — set to 0 to skip a line.</p>
+          <div class="field-grid">
+            <label class="field">
+              <span class="field-label">Currency symbol</span>
+              <input id="currency" class="field-input" type="text" maxlength="3" />
+            </label>
+            <label class="field">
+              <span class="field-label">Price per sheet</span>
+              <input id="sheetPrice" class="field-input" type="number" inputmode="decimal" step="any" />
+            </label>
+            <label class="field">
+              <span class="field-label">Edge banding (per <span id="bandUnit">ft</span>)</span>
+              <input id="bandingPrice" class="field-input" type="number" inputmode="decimal" step="any" />
+            </label>
+            <label class="field">
+              <span class="field-label">Hinge (each)</span>
+              <input id="hingePrice" class="field-input" type="number" inputmode="decimal" step="any" />
+            </label>
+            <label class="field">
+              <span class="field-label">Hinges per door</span>
+              <input id="hingesPerDoor" class="field-input" type="number" inputmode="numeric" step="1" min="0" />
+            </label>
+            <label class="field">
+              <span class="field-label">Pull / handle (each)</span>
+              <input id="pullPrice" class="field-input" type="number" inputmode="decimal" step="any" />
+            </label>
+            <label class="field">
+              <span class="field-label">Shelf pin set</span>
+              <input id="shelfPinSet" class="field-input" type="number" inputmode="decimal" step="any" />
+            </label>
+            <label class="field">
+              <span class="field-label">Labor rate (per hr)</span>
+              <input id="laborRate" class="field-input" type="number" inputmode="decimal" step="any" />
+            </label>
+            <label class="field">
+              <span class="field-label">Hours per cabinet</span>
+              <input id="hoursPerCabinet" class="field-input" type="number" inputmode="decimal" step="any" />
+            </label>
+            <label class="field">
+              <span class="field-label">Contingency %</span>
+              <input id="contingencyPct" class="field-input" type="number" inputmode="decimal" step="any" />
+            </label>
+            <label class="field">
+              <span class="field-label">Markup %</span>
+              <input id="markupPct" class="field-input" type="number" inputmode="decimal" step="any" />
+            </label>
+            <label class="field">
+              <span class="field-label">Tax %</span>
+              <input id="taxPct" class="field-input" type="number" inputmode="decimal" step="any" />
+            </label>
+          </div>
+          <label class="checkbox-row">
+            <input id="bandingEnabled" type="checkbox" />
+            <span>Include edge banding in the estimate</span>
+          </label>
+        </div>
+      </div>
+    </details>
+
     <!-- Cabinets -->
     <section class="cabinets-section">
       <div class="section-head">
@@ -138,6 +207,7 @@
   <script src="js/cabinet.js"></script>
   <script src="js/ada.js"></script>
   <script src="js/iso.js"></script>
+  <script src="js/estimator.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
